@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "raven-idor"
+version = "0.1.0"
+description = "Offline Burp HTTP request/response analyzer for authorized IDOR review"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+license = {text = "MIT"}
+
+[project.scripts]
+raven-idor = "raven_idor.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["raven_idor*"]
