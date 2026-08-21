@@ -1,0 +1,8 @@
+POST /api/users/123/orders?view=summary HTTP/1.1
+Host: lab.example
+Content-Type: application/json
+Authorization: Bearer LOCAL_DUMMY_TOKEN
+Cookie: session=LOCAL_DUMMY_SESSION
+User-Agent: Raven-Test
+
+{"user_id":123,"order_id":456,"note":"local lab"}
