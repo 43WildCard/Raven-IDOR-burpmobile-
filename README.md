@@ -1,142 +1,99 @@
-RAVEN IDOR
+# RAVEN IDOR
 
-RAVEN IDOR is a Python-based CLI tool designed to assist with controlled and authorized web security testing, particularly for analyzing identifiers and HTTP responses related to potential IDOR (Insecure Direct Object Reference) issues.
+<p align="center">
+  <b>CLI-Based IDOR Analysis Assistant</b>
+</p>
 
-It is designed for CLI environments such as Termux and can be used alongside Burp Suite for security labs, CTFs, authorized testing, and bug bounty programs where testing is explicitly permitted.
+<p align="center">
+  Analyze • Compare • Verify • Report
+</p>
 
-«RAVEN IDOR does not automatically confirm IDOR vulnerabilities.
-Identifiers and response differences are only candidates for manual security review.»
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Platform-Termux%20%7C%20Linux-111111?style=for-the-badge&logo=linux&logoColor=white" alt="Platform">
+  <img src="https://img.shields.io/badge/Version-v1.0-orange?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge" alt="Status">
+</p>
 
 ---
 
-📖 What is IDOR?
+## 📖 About
 
-IDOR (Insecure Direct Object Reference) is an access-control vulnerability that can occur when an application exposes a direct reference to an object, such as:
+**RAVEN IDOR** is a Python-based CLI security analysis tool designed to assist with **controlled and authorized web security testing**, particularly when analyzing identifiers and HTTP responses related to potential **IDOR (Insecure Direct Object Reference)** conditions.
 
-/user/123
-/order/456
-/document/789
+RAVEN is designed with an **offline-first approach** and works well in CLI environments such as:
 
-or:
+- 📱 Termux
+- 🐧 Linux
+- 🧪 Security Labs
+- 🎯 CTF environments
+- 🧰 Burp Suite workflows
+- 🐛 Authorized bug bounty testing
 
-/api/profile/123
-/api/profile/456
+> ⚠️ RAVEN IDOR does **not** automatically confirm vulnerabilities.
+>
+> Identifier detection and response differences are only **candidates for manual review**.
 
-An identifier itself does not mean that an application is vulnerable.
+---
 
-The important question is whether the application properly verifies that the current user is authorized to access the requested object.
+# 🧠 What is IDOR?
+
+**IDOR (Insecure Direct Object Reference)** is an access-control issue that can occur when an application exposes a direct reference to an internal object without properly verifying whether the current user is authorized to access it.
+
+Example:
+
+```http
+GET /api/profile/123 HTTP/1.1
+Host: example.com
+
+The value:
+
+123
+
+may represent a user, profile, document, order, or another object.
+
+Another request could contain:
+
+GET /api/profile/456 HTTP/1.1
+Host: example.com
+
+However:
+
+123 ≠ vulnerability
+456 ≠ vulnerability
+Different response ≠ vulnerability
+
+The important question is whether the application's authorization mechanism correctly controls access to those objects.
+
+RAVEN helps identify potentially interesting identifiers and response differences so that a tester can perform manual verification.
+
 
 ---
 
 ✨ Features
 
-- HTTP request parsing
-- Query parameter analysis
-- Path parameter analysis
-- JSON parameter analysis
-- Form parameter analysis
-- Cookie analysis
-- Authorization header detection
-- Common identifier detection
-- UUID detection
-- Numeric ID detection
-- MongoDB ObjectId detection
-- Response identifier discovery
-- HTTP response comparison
-- CLI Forward mode
-- CLI Repeater mode
-- Markdown report generation
-- Sensitive information redaction
-- Termux-friendly workflow
-- Burp Suite workflow support
-- Offline-first analysis
+Feature	Description
+
+🔎 Request Parser	Analyze raw HTTP requests
+🧩 Parameter Analysis	Identify interesting request parameters
+🆔 Identifier Detection	Detect common ID patterns
+📥 Response ID Discovery	Find identifiers already exposed in responses
+🔬 Response Comparison	Compare two HTTP responses
+▶️ Forward Mode	Send a single explicitly confirmed request
+🔁 Repeater	Interactive CLI request workflow
+📝 Report Generator	Generate Markdown security reports
+🔐 Redaction	Help remove sensitive information
+📱 Termux Friendly	Designed for mobile CLI environments
+🧰 Burp Workflow	Designed to work with Burp request/response exports
+📴 Offline Analysis	Most analysis does not require network access
+
+
 
 ---
 
-📦 Installation
+🎯 Identifier Detection
 
-Requirements
-
-- Python 3.10+
-- Git
-- Termux / Linux / compatible Python environment
-
-For Termux:
-
-pkg update
-pkg install git python
-
----
-
-Clone the Repository
-
-git clone https://github.com/43WildCard/Raven-IDOR-burpmobile-.git
-
-Enter the directory:
-
-cd Raven-IDOR-burpmobile-
-
----
-
-Create Virtual Environment
-
-python -m venv .venv
-
-Activate it:
-
-Linux / Termux
-
-source .venv/bin/activate
-
-If activation is successful, your shell should indicate that the virtual environment is active.
-
----
-
-Install RAVEN IDOR
-
-If the repository contains a Python package configuration such as "pyproject.toml":
-
-python -m pip install -e .
-
-Then verify:
-
-raven-idor --help
-
-If your project exposes the CLI under another executable name, check the installed package configuration or use:
-
-python -m pip show raven-idor
-
----
-
-🚀 Usage
-
-Show Help
-
-raven-idor --help
-
-Show help for a specific command:
-
-raven-idor <command> --help
-
----
-
-🔎 Request Analysis
-
-Save a raw HTTP request from Burp Suite as:
-
-request.txt
-
-Then parse the request:
-
-raven-idor parse request.txt
-
----
-
-Analyze Parameters
-
-raven-idor params request.txt
-
-This can help identify interesting parameters such as:
+RAVEN recognizes common identifier names such as:
 
 id
 user_id
@@ -145,65 +102,236 @@ profile_id
 order_id
 document_id
 file_id
+uid
 product_id
 transaction_id
 
+It can also recognize common identifier-shaped values:
+
+12345
+550e8400-e29b-41d4-a716-446655440000
+507f1f77bcf86cd799439011
+
+Confidence Levels
+
+Level	Meaning
+
+🟢 HIGH	Strongly resembles an identifier
+🟡 MEDIUM	Possibly an identifier
+🔵 LOW	Weak identifier signal
+
+
+> Confidence is not severity.
+
+A HIGH confidence identifier does not mean a vulnerability exists.
+
+
+
+
 ---
 
-Detect Identifiers
+📦 Requirements
 
-raven-idor ids request.txt
+Before installing RAVEN IDOR, make sure you have:
 
-RAVEN can identify common identifier patterns such as:
+Python 3.10+
 
-123
-456
-12345
-UUID
-MongoDB ObjectId
+Git
+
+Termux or Linux
+
+Basic command-line knowledge
+
+
+For Termux:
+
+pkg update
+pkg install git python
+
+
+---
+
+🚀 Installation
+
+1. Clone the Repository
+
+git clone https://github.com/43WildCard/Raven-IDOR-burpmobile-.git
+
+Enter the directory:
+
+cd Raven-IDOR-burpmobile-
+
+
+---
+
+2. Create Virtual Environment
+
+python -m venv .venv
+
+Activate it:
+
+source .venv/bin/activate
+
+
+---
+
+3. Install RAVEN
+
+python -m pip install -e .
+
+
+---
+
+4. Verify Installation
+
+raven-idor --help
+
+You should see the RAVEN CLI help menu.
+
+
+---
+
+⚡ Quick Start
+
+A basic workflow looks like this:
+
+Burp Suite
+    │
+    ▼
+Save HTTP Request
+    │
+    ▼
+RAVEN IDOR
+    │
+    ├── Parse
+    ├── Params
+    └── IDs
+          │
+          ▼
+   Manual Review
+          │
+          ▼
+ Authorized Response
+          │
+          ▼
+      Compare
+          │
+          ▼
+       Report
+
+
+---
+
+🛠️ Command Reference
+
+Global Help
+
+raven-idor --help
+
+Display available commands and options.
+
+
+---
+
+🔎 Parse HTTP Request
+
+Save a raw HTTP request:
+
+request.txt
 
 Example:
 
-GET /api/profile/123 HTTP/1.1
+GET /api/profile/123?page=1 HTTP/1.1
 Host: lab.example
+Cookie: session=REDACTED
 
-RAVEN may identify:
+Run:
 
-Value      : 123
-Location   : Path
-Type       : Numeric Identifier
-Confidence : HIGH
+raven-idor parse request.txt
 
-«HIGH confidence does not mean HIGH severity.
-It only indicates that the value strongly resembles an identifier.»
+RAVEN will analyze the structure of the request.
+
 
 ---
 
-📥 Response Analysis
+🧩 Analyze Parameters
 
-Save an authorized HTTP response as:
+raven-idor params request.txt
+
+Useful for identifying parameters such as:
+
+id
+user_id
+account_id
+profile_id
+order_id
+document_id
+
+Example:
+
+Parameters
+────────────────────────────
+
+page        → 1
+profile_id  → 123
+
+
+---
+
+🆔 Detect Identifiers
+
+raven-idor ids request.txt
+
+Example:
+
+Identifier Candidates
+────────────────────────────────
+
+Value       : 123
+Location    : URL Path
+Type        : Numeric ID
+Confidence  : HIGH
+
+Value       : 550e8400-e29b-41d4-a716-446655440000
+Location    : Parameter
+Type        : UUID
+Confidence  : HIGH
+
+Again:
+
+Identifier ≠ IDOR
+
+
+---
+
+📥 Response ID Discovery
+
+Save an authorized response:
 
 response.txt
 
-Then run:
+Then:
 
 raven-idor response-ids response.txt
 
-This can identify object references already visible inside the response.
-
-For example:
+Example response:
 
 {
   "user_id": 123,
   "order_id": 456
 }
 
-RAVEN can flag:
+RAVEN may report:
+
+Response Identifiers
+────────────────────────
 
 user_id   → 123
 order_id  → 456
 
-RAVEN does not automatically enumerate:
+No Automatic Enumeration
+
+RAVEN does not automatically generate:
 
 123
 124
@@ -211,6 +339,11 @@ RAVEN does not automatically enumerate:
 126
 127
 ...
+
+and send them to a server.
+
+The tool focuses on analyzing identifiers that are already present in the supplied request or response.
+
 
 ---
 
@@ -220,45 +353,73 @@ Compare two responses:
 
 raven-idor compare response1.txt response2.txt
 
-RAVEN can help compare:
+RAVEN can compare:
 
-- HTTP status
-- Response size
-- Body similarity
-- Selected headers
-- Identifier-shaped values
+HTTP status
 
-Example conceptual result:
+Response size
+
+Body similarity
+
+Selected headers
+
+Identifier-shaped values
+
+
+Example:
+
+Response Comparison
+────────────────────────────
+
+Status:
+  Response 1 → 200
+  Response 2 → 200
+
+Size:
+  Response 1 → 1842 bytes
+  Response 2 → 1907 bytes
+
+Body:
+  Similarity → 91.4%
+
+Identifiers:
+  Difference detected
 
 [!] MANUAL REVIEW REQUIRED
 
-This means the responses contain differences worth investigating.
+The result only indicates that something changed.
 
-It does not mean that an IDOR vulnerability has been confirmed.
+It does not prove IDOR.
+
 
 ---
 
 ▶️ Forward Mode
 
-RAVEN provides an active Forward mode for sending a single request:
+RAVEN provides an active Forward mode:
 
 raven-idor --active forward request.txt --output response.txt
 
-The active mode requires explicit user confirmation before sending.
+The tool requires explicit confirmation before sending the request.
 
 Conceptually:
 
 Request
-   ↓
-RAVEN
-   ↓
+   │
+   ▼
+Review
+   │
+   ▼
 Confirmation
-   ↓
+   │
+   ▼
 SEND ONCE
-   ↓
+   │
+   ▼
 Response
 
-RAVEN does not perform automatic repeated requests in Forward mode.
+The purpose is to prevent accidental repeated requests.
+
 
 ---
 
@@ -268,34 +429,53 @@ Start the CLI repeater:
 
 raven-idor --active repeater request.txt --output response.txt
 
-Typical controls:
+Example menu:
 
-[r] Reload request
-[s] Send once
-[q] Quit
+╭────────────────────────╮
+│     RAVEN REPEATER     │
+├────────────────────────┤
+│ [r] Reload request     │
+│ [s] Send once          │
+│ [q] Quit               │
+╰────────────────────────╯
 
 Workflow:
 
 1. Edit request.txt
-2. Open/reload the request
-3. Review the request
+2. Reload
+3. Review request
 4. Confirm sending
 5. Send once
-6. Analyze the response
+6. Analyze response
 
-Every request should be sent intentionally and only against an authorized target.
 
 ---
 
-📝 Generate a Report
+📝 Generate Report
 
 Generate a Markdown report:
 
 raven-idor report request.txt --output report.md
 
-The report is intended to help document security testing results.
+Example:
 
-Sensitive information should be redacted, including:
+[+] Request analyzed
+[+] Sensitive values redacted
+[+] Report generated
+
+Output:
+report.md
+
+The report can be used for security testing documentation.
+
+
+---
+
+🔐 Sensitive Data Redaction
+
+Security testing data may contain sensitive information.
+
+RAVEN is designed to help redact values such as:
 
 Cookie
 Authorization
@@ -306,13 +486,71 @@ Password
 API Key
 Secrets
 
+Example:
+
+Authorization: Bearer REDACTED
+Cookie: session=REDACTED
+
 Always review the generated report before sharing it.
+
 
 ---
 
-🧪 Complete Example Workflow
+🧰 Burp Suite Workflow
 
-A basic authorized testing workflow:
+RAVEN can be used together with Burp Suite.
+
+┌───────────────────┐
+│    Burp Suite     │
+└─────────┬─────────┘
+          │
+          │ Save Request
+          ▼
+┌───────────────────┐
+│   request.txt     │
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│    RAVEN IDOR     │
+│                   │
+│  parse            │
+│  params           │
+│  ids              │
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│ Identifier        │
+│ Candidates        │
+└─────────┬─────────┘
+          │
+          ▼
+     Manual Review
+          │
+          ▼
+┌───────────────────┐
+│ Authorized        │
+│ Responses         │
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│ RAVEN compare     │
+└─────────┬─────────┘
+          │
+          ▼
+   Manual Assessment
+          │
+          ▼
+┌───────────────────┐
+│ report.md         │
+└───────────────────┘
+
+
+---
+
+📋 Complete Example
 
 # Clone
 git clone https://github.com/43WildCard/Raven-IDOR-burpmobile-.git
@@ -320,10 +558,10 @@ git clone https://github.com/43WildCard/Raven-IDOR-burpmobile-.git
 # Enter project
 cd Raven-IDOR-burpmobile-
 
-# Create environment
+# Create virtual environment
 python -m venv .venv
 
-# Activate environment
+# Activate
 source .venv/bin/activate
 
 # Install
@@ -332,137 +570,273 @@ python -m pip install -e .
 # Check installation
 raven-idor --help
 
-# Analyze request
+# Parse request
 raven-idor parse request.txt
 
 # Analyze parameters
 raven-idor params request.txt
 
-# Find identifiers
+# Detect identifiers
 raven-idor ids request.txt
 
 # Analyze response
 raven-idor response-ids response.txt
 
-# Compare authorized responses
+# Compare responses
 raven-idor compare response1.txt response2.txt
 
 # Generate report
 raven-idor report request.txt --output report.md
 
----
-
-🔗 Burp Suite Workflow
-
-RAVEN IDOR can be used alongside Burp Suite:
-
-┌───────────────┐
-│   Burp Suite  │
-└───────┬───────┘
-        │
-        ▼
- Save HTTP Request
-        │
-        ▼
-┌─────────────────┐
-│   RAVEN IDOR    │
-│     params      │
-│       ids       │
-└────────┬────────┘
-         │
-         ▼
-Identifier Candidates
-         │
-         ▼
- Manual Verification
-         │
-         ▼
-Authorized Responses
-         │
-         ▼
-┌─────────────────┐
-│ RAVEN compare   │
-└────────┬────────┘
-         │
-         ▼
- Manual Assessment
-         │
-         ▼
-┌─────────────────┐
-│  Generate Report │
-└─────────────────┘
-
-RAVEN is an analysis assistant, not an automatic vulnerability confirmation system.
 
 ---
 
-⚠️ Disclaimer
+🧪 Example Request
 
-RAVEN IDOR is provided for educational, research, CTF, security lab, and authorized security testing purposes only.
+GET /api/users/123/profile?page=1 HTTP/1.1
+Host: lab.example
+Accept: application/json
+Cookie: session=REDACTED
 
-You are responsible for ensuring that you have explicit permission to test the target.
+Run:
 
-Only test:
+raven-idor ids request.txt
 
-- Systems you own
-- Security labs
-- CTF environments
-- Authorized penetration-testing targets
-- Bug bounty targets that explicitly allow your testing activity
+Possible output:
 
-Do NOT use RAVEN IDOR to:
+╭─ Identifier Candidate ─────────╮
+│ Value      : 123               │
+│ Location   : URL Path          │
+│ Type       : Numeric ID        │
+│ Confidence : HIGH              │
+╰────────────────────────────────╯
 
-- Access systems without authorization
-- Brute-force identifiers
-- Perform mass enumeration
-- Access another user's private data
-- Attack accounts belonging to other users
-- Perform credential attacks
-- Bypass authentication or authorization without permission
-- Evade WAF or security controls
-- Perform destructive testing
-- Delete or modify unauthorized data
-- Test targets outside a bug bounty scope
-- Expose or distribute sensitive information
+[!] Manual review required
 
----
+This means:
 
-🔐 Responsible Testing
+> "This value looks like an identifier."
 
-Always follow these principles:
 
-AUTHORIZED
-    ↓
-MINIMAL REQUESTS
-    ↓
-MINIMAL DATA
-    ↓
-MANUAL VERIFICATION
-    ↓
-RESPONSIBLE REPORTING
 
-Remember:
+It does not mean:
 
-Identifier found ≠ IDOR
+> "This application contains IDOR."
 
-Response changed ≠ IDOR
 
-High confidence ≠ High severity
 
-RAVEN result ≠ Confirmed vulnerability
-
-The final determination must be based on the application's actual authorization behavior and the rules of the authorized testing environment.
 
 ---
 
-🐦‍⬛ RAVEN IDOR
+🧠 Security Philosophy
 
-Analyze.
-Compare.
-Verify.
-Report.
+RAVEN follows a simple workflow:
 
-Never assume.
-Always verify.
+┌──────────┐
+│ ANALYZE  │
+└────┬─────┘
+     ▼
+┌──────────┐
+│ IDENTIFY │
+└────┬─────┘
+     ▼
+┌──────────┐
+│ COMPARE  │
+└────┬─────┘
+     ▼
+┌──────────┐
+│ VERIFY   │
+└────┬─────┘
+     ▼
+┌──────────┐
+│ REPORT   │
+└──────────┘
 
-RAVEN IDOR v1 — CLI security analysis for controlled and authorized testing.
+Not:
+
+Scan → Enumerate → Attack
+
+RAVEN is intended to assist a human tester rather than automatically declare vulnerabilities.
+
+
+---
+
+⚠️ Important
+
+Identifier Found ≠ IDOR
+
+/user/123
+
+does not automatically indicate a vulnerability.
+
+Different Response ≠ IDOR
+
+A response may change because of:
+
+Application logic
+
+Object state
+
+Caching
+
+Error handling
+
+Permissions
+
+Session state
+
+Other legitimate behavior
+
+
+HIGH Confidence ≠ HIGH Severity
+
+Confidence only represents how strongly a value resembles an identifier.
+
+
+---
+
+🛡️ Responsible Use
+
+RAVEN IDOR is intended for:
+
+✅ Security education
+
+✅ CTF
+
+✅ PortSwigger Web Security Academy
+
+✅ Security labs
+
+✅ Applications you own
+
+✅ Authorized penetration testing
+
+✅ Bug bounty programs that explicitly permit the activity
+
+
+
+---
+
+🚫 Do Not Use For
+
+Do not use RAVEN IDOR to:
+
+❌ Access systems without permission
+
+❌ Perform unauthorized ID enumeration
+
+❌ Brute-force identifiers
+
+❌ Perform mass enumeration
+
+❌ Access another user's private information
+
+❌ Attack accounts belonging to other users
+
+❌ Perform credential attacks
+
+❌ Bypass authentication without authorization
+
+❌ Bypass authorization controls outside an approved test
+
+❌ Evade WAF/security controls
+
+❌ Perform destructive testing
+
+❌ Delete or modify unauthorized data
+
+❌ Test targets outside bug bounty scope
+
+❌ Collect or expose sensitive information
+
+
+
+---
+
+🔒 Data Protection
+
+Always minimize the amount of sensitive data stored during testing.
+
+Before sharing logs, requests, responses, or reports, remove:
+
+Passwords
+API Keys
+Session Cookies
+Access Tokens
+Refresh Tokens
+Authorization Headers
+Personal Information
+Secrets
+
+Example:
+
+Authorization: Bearer REDACTED
+Cookie: session=REDACTED
+X-API-Key: REDACTED
+
+
+---
+
+📜 Disclaimer
+
+RAVEN IDOR is provided for educational and authorized security testing purposes only.
+
+The developer does not authorize or encourage unauthorized access, data theft, privacy violations, destructive testing, or attacks against systems without explicit permission.
+
+You are solely responsible for:
+
+1. Confirming that the target is within scope.
+
+
+2. Obtaining the necessary authorization.
+
+
+3. Following the rules of the target or bug bounty program.
+
+
+4. Protecting sensitive information.
+
+
+5. Avoiding unnecessary impact on systems and users.
+
+
+
+Use RAVEN only where you have permission to perform the testing.
+
+> Always verify. Never assume. Test responsibly.
+
+
+
+
+---
+
+🐦‍⬛ RAVEN
+
+██████╗  █████╗ ██╗   ██╗███████╗███╗   ██╗
+██╔══██╗██╔══██╗██║   ██║██╔════╝████╗  ██║
+██████╔╝███████║██║   ██║█████╗  ██╔██╗ ██║
+██╔══██╗██╔══██║╚██╗ ██╔╝██╔══╝  ██║╚██╗██║
+██║  ██║██║  ██║ ╚████╔╝ ███████╗██║ ╚████║
+╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝
+
+Analyze. Compare. Verify. Report.
+
+RAVEN IDOR v1.0
+
+
+---
+
+⭐ Support
+
+If you find RAVEN IDOR useful for authorized security research, consider giving the repository a ⭐ on GitHub.
+
+Repository:
+https://github.com/43WildCard/Raven-IDOR-burpmobile-
+
+
+---
+
+<p align="center">
+  Made for learning, research, and responsible security testing.
+</p>
+```
