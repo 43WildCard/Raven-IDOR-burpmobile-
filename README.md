@@ -159,7 +159,7 @@ git clone https://github.com/43WildCard/Raven-IDOR-burpmobile-.git
 
 Enter the directory:
 
-cd Raven-IDOR-burpmobile-
+cd raven-idor
 
 
 ---
